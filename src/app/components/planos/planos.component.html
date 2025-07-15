@@ -1,0 +1,401 @@
+
+<div class="flex justify-content-center flex-wrap" *ngIf="carregandoPlano">
+    <div class="flex align-items-center justify-content-center">
+        <app-spinner></app-spinner>
+    </div>
+</div>
+<div class="surface-card p-4 shadow-2 border-round" *ngIf="!carregandoPlano">
+    <div class="font-medium text-3xl text-900 mb-3">{{ planoAtual.nome }}</div>
+    <div class="text-500 mb-5">Criado por {{ planoAtual.criadoPor }} em {{ planoAtual.criadoEm | date: 'dd/MM/yyyy HH:mm' }}</div>
+    <div class="grid grid-nogutter border-top-1 surface-border pt-2">
+        <div class="col-12 p-3">
+            <div class="text-500 font-medium mb-2">Desafio</div>
+            <div class="text-900 line-height-3">{{ planoAtual.desafio }}</div>
+        </div>
+        <div class="col-12 p-3">
+            <div class="text-500 font-medium mb-2">Através de</div>
+            <div class="text-900 line-height-3">{{ planoAtual.atraves }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <p-button label="Novo Projeto" icon="pi pi-plus" (onClick)="janelaNovoProjeto()"/>
+</div>
+
+<div class="flex justify-content-center flex-wrap" *ngIf="carregandoProjetos">
+    <div class="flex align-items-center justify-content-center">
+        <app-spinner></app-spinner>
+    </div>
+</div>
+
+<div class="surface-section px-4 py-8 md:px-6 lg:px-8 mt-4" *ngIf="!carregandoProjetos && projetos.length == 0">
+    <div class="flex flex-column lg:flex-row align-items-center justify-content-between">
+        <div class="text-center lg:text-left lg:pr-8">
+            <div class="text-blue-600 font-medium mb-1 text-xl">Nenhum Projecto Encontrado!</div>
+            <div class="text-900 font-bold text-6xl mb-5">Crie um novo Projeto!</div>
+        </div>
+        <div class="mt-5 lg:mt-0 flex flex-wrap lg:flex-nowrap">
+            <button pButton pRipple label="Criar Primeiro Projeto" class="px-5 py-3 mr-0 lg:mr-3 p-button-rounded font-bold mb-3 lg:mb-0 w-full lg:w-auto white-space-nowrap" (onClick)="janelaNovoProjeto()"></button>
+            <button pButton pRipple label="Ver Tutoriais" icon="pi pi-arrow-right" iconPos="right" class="px-5 py-3 p-button-outlined p-button-rounded font-bold w-full lg:w-auto white-space-nowrap" style="white-space: nowrap"></button>
+        </div>
+    </div>
+</div>
+<div class="surface-card p-4 shadow-2 border-round mt-4" *ngIf="projetos.length > 0 && !carregandoProjetos">
+    <p-table 
+        [value]="projetos" 
+        styleClass="p-datatable-gridlines p-datatable-striped" 
+        [tableStyle]="{ 'min-width': '50rem' }"
+        [resizableColumns]="true" 
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th pResizableColumn pSortableColumn="prioridade">
+                    Prioriodade <p-sortIcon field="prioridade" />
+                </th>
+                <th pResizableColumn pSortableColumn="atraso">
+                    Cronograma <p-sortIcon field="atraso" />
+                </th>
+                <th pResizableColumn pSortableColumn="progresso">
+                    Progresso <p-sortIcon field="progresso" />
+                </th>
+                <th pResizableColumn pSortableColumn="nome">
+                    Projeto <p-sortIcon field="nome" />
+                </th>
+                <th pResizableColumn pSortableColumn="cronograma.data">
+                    Data Cronograma <p-sortIcon field="cronograma.data" />
+                </th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-projeto>
+            <tr>
+                <td>{{ projeto.prioridade }}</td>
+                <td>
+                    <p-badge [value]="'Atrasado'" severity="danger" *ngIf="projeto.atraso"/>
+                    <p-badge [value]="'Em Dia'" severity="success" *ngIf="!projeto.atraso"/>
+                </td>
+                <td>{{ projeto.progresso * 100 }} %</td>
+                <td>{{ projeto.nome }}</td>
+                <td>
+                    <span *ngIf="projeto.cronograma.data">
+                        {{ projeto.cronograma.data | date: 'dd/MM/yyyy' }}
+                    </span>
+                    <span *ngIf="!projeto.cronograma.data">
+                        Nenhuma data encontrada
+                    </span>
+                </td>
+                <td>
+                    <p-button icon="pi pi-eye" (click)="janelaVerProjeto( projeto )" />
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+
+
+<!-- modal novo projeto -->
+ <p-dialog 
+    header="Novo Projeto" 
+    [modal]="true"
+    [maximizable]="true"
+    [(visible)]="mostrarNovoProjeto" 
+    [style]="{ width: '80rem' }" 
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+>
+        <div class="flex align-items-center gap-3 mb-3">
+            <label for="username" class="font-semibold w-6rem">
+                Nome
+            </label>
+            <input pInputText id="username" class="flex-auto" autocomplete="off" [(ngModel)]="novoProjeto.nome" />
+        </div>
+        <div class="flex align-items-center gap-3 mb-3">
+            <label for="username" class="font-semibold w-6rem">
+                Prioridade
+            </label>
+            <p-inputNumber [(ngModel)]="novoProjeto.prioridade" [showButtons]="true" inputId="minmax-buttons" [min]="0" [max]="100" /> 
+            <label for="username" class="font-semibold w-6rem">
+                Lider
+            </label>
+            <input pInputText id="username" class="flex-auto" autocomplete="off" [(ngModel)]="novoProjeto.lider" />
+            <label for="username" class="font-semibold w-6rem">
+                Padrinho
+            </label>
+            <input pInputText id="username" class="flex-auto" autocomplete="off" [(ngModel)]="novoProjeto.padrinho" />
+        </div>
+        <div class="flex align-items-center gap-3 mb-5">
+            <label for="email" class="font-semibold w-6rem">Escopo</label>
+            <textarea 
+                rows="5"
+                cols="30" 
+                class="flex-auto"
+                pInputTextarea 
+                [(ngModel)]="novoProjeto.escopo">
+            </textarea>
+        </div>
+        <p-divider />
+        <!-- form nova etapa -->
+        <div class="flex align-items-center gap-3 mb-3">
+            <label for="nome-etapa" class="font-semibold w-6rem">
+                Nova Etapa:
+            </label>
+            <label for="nome-etapa" class="font-semibold w-2rem">
+                Nome
+            </label>
+            <input pInputText id="nome-etapa" class="flex-auto" autocomplete="off" [(ngModel)]="novaEtapa.nome" />
+
+            <label for="responsavel-etapa" class="font-semibold w-5rem">
+                Reponsável
+            </label>
+            <input pInputText id="responsavel-etapa" class="flex-auto" autocomplete="off" [(ngModel)]="novaEtapa.responsavel" />
+
+            <label for="data-etapa" class="font-semibold w-2rem">
+                Data
+            </label>
+            <p-calendar appendTo="body" [(ngModel)]="novaEtapa.data" />
+
+            <p-button icon="pi pi-plus" (onClick)="adicionarNovaEtapa()"/>
+        </div>
+        <!-- tabela etapas -->
+        <p-table 
+            [value]="novoProjeto.etapas" 
+            styleClass="p-datatable-gridlines p-datatable-striped" 
+            [tableStyle]="{ 'min-width': '50rem' }"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th></th>
+                    <th>Nome</th>
+                    <th>Reponsável</th>
+                    <th>Data</th>
+                    <th>Concluída</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-etapa let-editing="editing">
+                <tr>
+                    <td>{{ etapa.letra }}</td>
+                    <td [pEditableColumn]="etapa.nome" pEditableColumnField="nome">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input 
+                                    pInputText 
+                                    type="text" 
+                                    [(ngModel)]="etapa.nome" />
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{ etapa.nome }}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td [pEditableColumn]="etapa.responsavel" pEditableColumnField="responsavel">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input 
+                                    pInputText 
+                                    type="text" 
+                                    [(ngModel)]="etapa.responsavel" />
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{ etapa.responsavel }}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td [pEditableColumn]="etapa.data" pEditableColumnField="data">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <p-calendar appendTo="body" [(ngModel)]="etapa.data" />
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{ etapa.data | date: 'dd/MM/yyyy' }}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td [pEditableColumn]="etapa.concluida" pEditableColumnField="data">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <p-checkbox 
+                                    [(ngModel)]="etapa.concluida" 
+                                    [binary]="true" 
+                                    inputId="binary" 
+                                />
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                <p-checkbox 
+                                    [(ngModel)]="etapa.concluida" 
+                                    [binary]="true" 
+                                    inputId="binary" 
+                                />
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <ng-template pTemplate="footer">
+            <p-button 
+                label="Cancelar" 
+                [text]="true" 
+                (click)="janelaNovoProjeto()"
+                severity="secondary"  />
+            <p-button 
+                label="Salvar" 
+                [outlined]="true" 
+                severity="primary" 
+                (click)="salvarNovoProjeto()"
+              />
+        </ng-template>
+</p-dialog>
+
+<!-- modal ver projeto -->
+ <p-dialog 
+    header="Projeto" 
+    [modal]="true"
+    [maximizable]="true"
+    [(visible)]="mostrarProjeto" 
+    [style]="{ width: '80rem' }" 
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+>
+        <div class="flex align-items-center gap-3 mb-3">
+            <label for="username" class="font-semibold w-6rem">
+                Nome
+            </label>
+            <input pInputText id="username" class="flex-auto" autocomplete="off" [(ngModel)]="projetoSelecionado.nome" />
+        </div>
+        <div class="flex align-items-center gap-3 mb-3">
+            <label for="username" class="font-semibold w-6rem">
+                Prioridade
+            </label>
+            <p-inputNumber [(ngModel)]="projetoSelecionado.prioridade" [showButtons]="true" inputId="minmax-buttons" [min]="0" [max]="100" /> 
+            <label for="username" class="font-semibold w-6rem">
+                Lider
+            </label>
+            <input pInputText id="username" class="flex-auto" autocomplete="off" [(ngModel)]="projetoSelecionado.lider" />
+            <label for="username" class="font-semibold w-6rem">
+                Padrinho
+            </label>
+            <input pInputText id="username" class="flex-auto" autocomplete="off" [(ngModel)]="projetoSelecionado.padrinho" />
+        </div>
+        <div class="flex align-items-center gap-3 mb-5">
+            <label for="email" class="font-semibold w-6rem">Escopo</label>
+            <textarea 
+                rows="5"
+                cols="30" 
+                class="flex-auto"
+                pInputTextarea 
+                [(ngModel)]="projetoSelecionado.escopo">
+            </textarea>
+        </div>
+        <p-divider />
+        <!-- form nova etapa -->
+        <div class="flex align-items-center gap-3 mb-3">
+            <label for="nome-etapa" class="font-semibold w-6rem">
+                Nova Etapa:
+            </label>
+            <label for="nome-etapa" class="font-semibold w-2rem">
+                Nome
+            </label>
+            <input pInputText id="nome-etapa" class="flex-auto" autocomplete="off" [(ngModel)]="novaEtapa.nome" />
+
+            <label for="responsavel-etapa" class="font-semibold w-5rem">
+                Reponsável
+            </label>
+            <input pInputText id="responsavel-etapa" class="flex-auto" autocomplete="off" [(ngModel)]="novaEtapa.responsavel" />
+
+            <label for="data-etapa" class="font-semibold w-2rem">
+                Data
+            </label>
+            <p-calendar appendTo="body" [(ngModel)]="novaEtapa.data" />
+
+            <p-button icon="pi pi-plus" (onClick)="adicionarNovaEtapa()"/>
+        </div>
+        <!-- tabela etapas -->
+        <p-table 
+            [value]="projetoSelecionado.etapas" 
+            styleClass="p-datatable-gridlines p-datatable-striped" 
+            [tableStyle]="{ 'min-width': '50rem' }"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th></th>
+                    <th>Nome</th>
+                    <th>Reponsável</th>
+                    <th>Data</th>
+                    <th>Concluída</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-etapa let-editing="editing">
+                <tr>
+                    <td>{{ etapa.letra }}</td>
+                    <td [pEditableColumn]="etapa.nome" pEditableColumnField="nome">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input 
+                                    pInputText 
+                                    type="text" 
+                                    [(ngModel)]="etapa.nome" />
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{ etapa.nome }}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td [pEditableColumn]="etapa.responsavel" pEditableColumnField="responsavel">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input 
+                                    pInputText 
+                                    type="text" 
+                                    [(ngModel)]="etapa.responsavel" />
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{ etapa.responsavel }}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td [pEditableColumn]="etapa.data" pEditableColumnField="data">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <p-calendar appendTo="body" [(ngModel)]="etapa.data" />
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{ etapa.data | date: 'dd/MM/yyyy' }}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td [pEditableColumn]="etapa.concluida" pEditableColumnField="data">
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <p-checkbox 
+                                    [(ngModel)]="etapa.concluida" 
+                                    [binary]="true" 
+                                    inputId="binary" 
+                                />
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                <p-checkbox 
+                                    [(ngModel)]="etapa.concluida" 
+                                    [binary]="true" 
+                                    inputId="binary" 
+                                />
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <ng-template pTemplate="footer">
+            <p-button 
+                label="Cancelar" 
+                [text]="true" 
+                (click)="janelaVerProjeto( projetoSelecionado )"
+                severity="secondary"  />
+            <p-button 
+                label="Salvar" 
+                [outlined]="true" 
+                severity="primary" 
+              />
+        </ng-template>
+</p-dialog>
