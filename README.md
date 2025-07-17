@@ -15,7 +15,7 @@ Para rodar esse Tech-Demo em ambiente local, você precisará:
 npm install -g @angular/cli
 ```
 
-Para ler mais sobre o Angular CLI, você pode acessar (este link)[https://angular.dev/tools/cli/setup-local]
+Para ler mais sobre o Angular CLI, você pode acessar [este link](https://angular.dev/tools/cli/setup-local)
 
 ## Executando o projeto
 Após instalar o NodeJS, NPM e o Angular CLI siga os passos abaixo:
@@ -24,7 +24,7 @@ Após instalar o NodeJS, NPM e o Angular CLI siga os passos abaixo:
 - Navegue até a pasta do projeto, onde o arquivo package.json se encontra;
 - Execute o comando ```npm install``` para instalar todas as dependências e criar a pasta node_modules;
 - Após todas as dependências instaladas, execute o comando ```ng serve```para subir o serviço na porta 4200 (padrão do Angular);
-- Acesse (http://localhost:4200)[http://localhost:4200]
+- Acesse [http://localhost:4200](http://localhost:4200)
 
 ## Possíveis problemas
 
