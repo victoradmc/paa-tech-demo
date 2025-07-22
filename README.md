@@ -2,6 +2,8 @@
 
 Este projeto foi criado com [Angular CLI](https://github.com/angular/angular-cli) na versão 17.3.16 por sua compatibilidade com PrimeBlocks v17.x
 
+Este projeto ainda usa a versão antiga do primeblocks, escrita usando o PrimeFlex ao invés de Tailwind CSS. Novas atualizações serão feitas quando a versão do primeblocks for migrada.
+
 # Como executar em ambiente local
 
 ## Pré-requisitos
